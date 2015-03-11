@@ -23,7 +23,7 @@ int main(int argc, const char * argv[]) {
         NSLog(@"Allocating %zd bytes", size);
         void *buffer = malloc(size);
         NSLog(@"Moving %zd bytes", size);
-        NSLog(@"(This will crash when run in Terminal, but work when run from Xcode. Debug or no doesn't matter.)");
+        NSLog(@"(Crashes when doing the memmove.)");
         memmove(buffer, ptr, size);
         NSLog(@"Freeing %zd bytes", size);
         free(buffer);
