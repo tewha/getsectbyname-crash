@@ -7,31 +7,19 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <mach-o/getsect.h>
+
+#include <mach-o/getsect.h>
+#include <mach-o/ldsyms.h>
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-        // This works in debug or release configurations, but only if run by Xcode.
-        
-        //        NSError *e;
-        const struct section_64 *plistSection = getsectbyname("__TEXT", "__info_plist");
-        NSLog(@"Found a section %s, %s", plistSection->segname, plistSection->sectname);
-        void *ptr = ((void *)plistSection->addr);
-        uint64_t size = plistSection->size;
-        
-        NSLog(@"It has %zd bytes at %tx", size, plistSection->addr);
-        NSLog(@"Allocating %zd bytes", size);
-        void *buffer = malloc(size);
-        NSLog(@"Moving %zd bytes", size);
-        NSLog(@"(Crashes when doing the memmove.)");
-        memmove(buffer, ptr, size);
-        NSLog(@"Freeing %zd bytes", size);
-        free(buffer);
-        
-        //        NSData *plistData = [NSData dataWithBytesNoCopy:ptr length:size freeWhenDone:NO];
-        //        NSPropertyListFormat format;
-        //        NSDictionary *infoPlistContents =  [NSPropertyListSerialization propertyListWithData:plistData options:NSPropertyListImmutable format:&format error:&e];
-        //        NSLog(@"The value for Key is %@", infoPlistContents[@"Key"]);
+        NSError *e;
+        unsigned long size;
+        void *ptr = getsectiondata(&_mh_execute_header, "__TEXT", "__info_plist", &size);
+        NSData *plistData = [NSData dataWithBytesNoCopy:ptr length:size freeWhenDone:NO];
+        NSPropertyListFormat format;
+        NSDictionary *infoPlistContents =  [NSPropertyListSerialization propertyListWithData:plistData options:NSPropertyListImmutable format:&format error:&e];
+        NSLog(@"The value for Key is %@", infoPlistContents[@"Key"]);
     }
     return 0;
 }
